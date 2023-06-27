@@ -1,4 +1,6 @@
 #include "string_tree.h"
+#include <stddef.h>
+#include <stdio.h>
 
 void remove_rec(token* begin){
 	if(begin->down) {
@@ -27,9 +29,10 @@ token* init_tree(){
 token* new_token(char* _token){
 	token* ret = (token*)malloc(sizeof(token));
 	memset(ret, 0, sizeof(token));
-	if(!_token) return ret;
-	ret->tok = (char*)malloc(strlen(_token)+1);
-	strcpy(ret->tok, _token);
+	if(_token){
+		ret->tok = (char*)malloc(strlen(_token)+1);
+		strcpy(ret->tok, _token);
+	}
 	return ret;
 }
 
@@ -48,7 +51,7 @@ token* slide_down(char* src, token* begin){
 	if(strlen(src)){
 		goto enter;
 
-		do{
+		while(begin->next){
 			begin = begin->next;
 		
 			enter:
@@ -66,7 +69,7 @@ token* slide_down(char* src, token* begin){
 					return begin->down ? slide_down(src + syn, begin->down) : (begin->down = new_token(src + syn));
 				return begin;
 			}
-		} while(begin->next);
+		}
 	}
 	else while(begin->next) begin = begin->next;
 
@@ -105,4 +108,77 @@ void* find_down(char* src, token* begin){
 
 void* find_element(char* src, token* begin){
 	return find_down(src, begin + *src);
+}
+
+void count_elements_rec(token* begin, packinfo* info){
+	while(begin){
+		info->nodes++;
+		info->text_length += strlen(begin->tok) + 1;
+
+		count_elements_rec(begin->down, info);
+		begin = begin->next;
+	}
+}
+
+packinfo count_elements(token* begin){
+	packinfo info = {0, 0};
+
+	size_t i = 256;
+	while(i--)
+		if(begin[i].tok)
+			count_elements_rec(begin + i, &info);
+
+	return info;
+}
+
+pack fill_pack_rec(token* begin, pack package){
+	packinfo this;
+
+	goto fill1;
+
+	while(begin->next){
+		begin = begin->next;
+		package.elements[this.nodes].next = ++package.info.nodes;
+
+	fill1:
+		this = package.info;
+
+		strcpy(package.texts + this.text_length, begin->tok);
+		package.elements[this.nodes].text = this.text_length;
+		package.info.text_length += strlen(begin->tok) + 1;
+
+		package.elements[this.nodes].origin = begin->origin;
+
+		if(begin->down){
+			++package.info.nodes;
+			package = fill_pack_rec(begin->down, package);
+		}
+	}
+
+	package.elements[this.nodes].next = -1;
+
+	return package;
+}
+
+void fill_pack(token* begin, pack package){
+	package.info = (packinfo){0, 0};
+
+	size_t i = 256;
+	while(i--)
+		if(begin[i].tok)
+			package = fill_pack_rec(begin + i, package);
+}
+
+pack pack_tree(token* begin){
+    pack package;
+
+	package.info = count_elements(begin);
+	size_t mem = package.info.nodes * sizeof(pack_element);
+
+	package.elements = (pack_element*)malloc(package.info.text_length + mem);
+	package.texts = (char*)package.elements + mem;
+
+	fill_pack(begin, package);
+
+	return package;
 }
