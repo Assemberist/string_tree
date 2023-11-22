@@ -1,0 +1,14 @@
+	Description:
+It is small library that creates tree from strings. The tree is a key-value wordbook where key is a char consequence and value is void*.
+
+	How to use it:
+The library is presented as sources, so you free copy and compile it as a part of your c-project.
+
+Also there is some templates which shows how the libcan be used.
+
+	How to build templates:
+If you want to build all templates: go to templates/ foulder and execute make.
+If you interest in specific template: go to the template foulder and execute make.
+
+To cleanup all execute make clean.
+To cleanup specific template foulder execute make clean.
