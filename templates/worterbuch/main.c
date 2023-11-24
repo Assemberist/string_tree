@@ -11,7 +11,7 @@ int main(){
 	printf("\"arka\" found -> %i\n",
 			find_element("arka", begin));
 	printf("\"arfa\" found -> %i\n",
-			find_element("arka", begin)); 
+			find_element("afka", begin)); 
 	printf("\"none\" not found -> %i\n", 
 			find_element("none", begin));
 
