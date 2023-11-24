@@ -1,14 +1,64 @@
+################################################################################
+################################################################################
 	Description:
-It is small library that creates tree from strings. The tree is a key-value wordbook where key is a char consequence and value is void*.
+It is small library that creates tree from strings. The tree is a key-value
+wordbook where key is a char consequence and value is void*.
 
 	How to use it:
-The library is presented as sources, so you free copy and compile it as a part of your c-project.
-
-Also there is some templates which shows how the libcan be used.
+The library is presented as sources, so you free copy and compile it as a part
+of your c-project. Also there is some templates which shows how the lib can be
+used.
 
 	How to build templates:
 If you want to build all templates: go to templates/ foulder and execute make.
-If you interest in specific template: go to the template foulder and execute make.
+If you interest in specific template: go to the template foulder and execute
+make.
 
+	How to cleanup templates:
 To cleanup all execute make clean.
 To cleanup specific template foulder execute make clean.
+
+
+
+################################################################################
+################################################################################
+STRUCTS                      |  DESCRIPTION
+################################################################################
+struct token{};              |  Minimal component of tree. Contains links to 
+                             |  stored value, child and next token.
+-----------------------------|--------------------------------------------------
+struct pack{};               |  String tree can be compressed and stored in to
+                             |  the struct.
+--------------------------------------------------------------------------------
+
+
+################################################################################
+FUNCTIONS                    |  DESCRIPTION
+################################################################################
+init_tree();                 |  Creates string tree. 
+                             |  Returns dynamiaclly allocated void tree.
+-----------------------------|--------------------------------------------------
+add_element();               |  Add new key-value to string tree. If the key
+                             |  already added just replace old value with new.
+                             |
+                             |  Note! If you add NULL value you can be confused
+                             |  because find_element return NULL if key not
+                             |  found.
+-----------------------------|--------------------------------------------------
+find_element();              |  Searh element of string_tree by key. 
+-----------------------------|--------------------------------------------------
+remove_tree();               |  frees memory allocated for 
+--------------------------------------------------------------------------------
+pack_tree();                 |  Compress string tree to pack struct. Memory
+                             |  allocated dynamically, but as single piece.
+
+################################################################################
+NOT REALYSED
+################################################################################
+update_element();
+unpack_tree();
+import_words();
+import_tree();
+export_tree();
+update_pack();
+find_pack_element();
