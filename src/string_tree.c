@@ -48,7 +48,7 @@ size_t strdif(char* str1, char* str2){
 token* slide_down(char* src, token* begin){
 	char syn;
 	
-	if(strlen(src)){
+	if(*src){
 		goto enter;
 
 		while(begin->next){
@@ -77,7 +77,7 @@ token* slide_down(char* src, token* begin){
 	return begin->next;
 }
 
-void add_element(char* src, void* element, token* begin){
+void set_value(char* src, void* element, token* begin){
 	token* ptr = begin + *src;
 	if(ptr->tok) slide_down(src, ptr)->origin = element;
 	else{
@@ -106,7 +106,7 @@ void* find_down(char* src, token* begin){
 	return 0;
 }
 
-void* find_element(char* src, token* begin){
+void* get_value(char* src, token* begin){
 	return find_down(src, begin + *src);
 }
 

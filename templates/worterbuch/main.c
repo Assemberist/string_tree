@@ -4,16 +4,16 @@
 int main(){
     token* begin = init_tree();					// string_tree is created. All memory is dynamically allocated.
 
-    add_element("arka", (void*)1, begin);
-    add_element("arfa", (void*)2, begin);
-    add_element("ar", (void*)3, begin);
+    set_value("arka", (void*)1, begin);
+    set_value("arfa", (void*)2, begin);
+    set_value("ar", (void*)3, begin);
 
 	printf("\"arka\" found -> %i\n",
-			find_element("arka", begin));
+			get_value("arka", begin));
 	printf("\"arfa\" found -> %i\n",
-			find_element("arfa", begin)); 
+			get_value("arfa", begin)); 
 	printf("\"none\" not found -> %i\n", 
-			find_element("none", begin));
+			get_value("none", begin));
 
 	remove_tree(begin);							// frees used memory.
 }

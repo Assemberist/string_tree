@@ -1,5 +1,5 @@
 ################################################################################
-################################################################################
+
 	Description:
 It is small library that creates tree from strings. The tree is a key-value
 wordbook where key is a char consequence and value is void*.
@@ -21,7 +21,6 @@ To cleanup specific template foulder execute make clean.
 
 
 ################################################################################
-################################################################################
 STRUCTS                      |  DESCRIPTION
 ################################################################################
 struct token{};              |  Minimal component of tree. Contains links to 
@@ -38,27 +37,26 @@ FUNCTIONS                    |  DESCRIPTION
 init_tree();                 |  Creates string tree. 
                              |  Returns dynamiaclly allocated void tree.
 -----------------------------|--------------------------------------------------
-add_element();               |  Add new key-value to string tree. If the key
+set_value();                 |  Add new key-value to string tree. If the key
                              |  already added just replace old value with new.
                              |
-                             |  Note! If you add NULL value you can be confused
-                             |  because find_element return NULL if key not
-                             |  found.
 -----------------------------|--------------------------------------------------
-find_element();              |  Searh element of string_tree by key. 
+get_value();                 |  Searh element of string_tree by key. Returns
+							 |  NULL if key not found.
 -----------------------------|--------------------------------------------------
 remove_tree();               |  frees memory allocated for 
---------------------------------------------------------------------------------
+-----------------------------|--------------------------------------------------
 pack_tree();                 |  Compress string tree to pack struct. Memory
                              |  allocated dynamically, but as single piece.
+--------------------------------------------------------------------------------
 
 ################################################################################
 NOT REALYSED
 ################################################################################
-update_element();
+delete_pair(); - As WA you can set value to NULL.
 unpack_tree();
 import_words();
 import_tree();
 export_tree();
 update_pack();
-find_pack_element();
+find_pack_element(); - Pack is useless without it, i know.
