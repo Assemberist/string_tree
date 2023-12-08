@@ -1,5 +1,5 @@
 ################################################################################
-
+ 
 	Description:
 It is small library that creates tree from strings. The tree is a key-value
 wordbook where key is a char consequence and value is void*.
