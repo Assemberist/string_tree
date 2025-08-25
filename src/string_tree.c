@@ -3,15 +3,16 @@
 #include <stdio.h>
 
 void remove_rec(token* begin){
-	if(begin->down) {
-		remove_rec(begin->down);
-		free(begin->down);
-	}
-	if(begin->next){
-		remove_rec(begin->next);
-		free(begin->next);
-	}
-	free(begin->tok);
+    if(begin->down){
+        remove_rec(begin->down);
+        free(begin->down);
+    }
+    if(begin->next){
+        remove_rec(begin->next);
+        free(begin->next);
+    }
+
+    free(begin->tok);
 }
 
 void remove_tree(token* begin){
@@ -47,15 +48,15 @@ size_t strdif(char* str1, char* str2){
 
 token* slide_down(char* src, token* begin){
 	char syn;
-	
+
 	if(*src){
 		goto enter;
 
 		while(begin->next){
 			begin = begin->next;
-		
+
 			enter:
-		
+
 			if(syn = strdif(begin->tok, src)){
 				if(syn < strlen(begin->tok)){
 					token* ptr = new_token(begin->tok + syn);
@@ -65,7 +66,7 @@ token* slide_down(char* src, token* begin){
 					begin->tok[syn] = 0;
 					begin->down = ptr;
 				}
-				if(syn < strlen(src)) 
+				if(syn < strlen(src))
 					return begin->down ? slide_down(src + syn, begin->down) : (begin->down = new_token(src + syn));
 				return begin;
 			}
@@ -93,7 +94,7 @@ void* find_down(char* src, token* begin){
 		if(*begin->tok == *src){
 			size_t diff = strdif(begin->tok, src);
 
-			if(strlen(begin->tok) == strlen(src)) 
+			if(strlen(begin->tok) == strlen(src))
 				return begin->origin;
 
 			if(diff < strlen(src))
@@ -108,77 +109,4 @@ void* find_down(char* src, token* begin){
 
 void* get_value(char* src, token* begin){
 	return find_down(src, begin + *src);
-}
-
-void count_elements_rec(token* begin, packinfo* info){
-	while(begin){
-		info->nodes++;
-		info->text_length += strlen(begin->tok) + 1;
-
-		count_elements_rec(begin->down, info);
-		begin = begin->next;
-	}
-}
-
-packinfo count_elements(token* begin){
-	packinfo info = {0, 0};
-
-	size_t i = 256;
-	while(i--)
-		if(begin[i].tok)
-			count_elements_rec(begin + i, &info);
-
-	return info;
-}
-
-pack fill_pack_rec(token* begin, pack package){
-	packinfo this;
-
-	goto fill1;
-
-	while(begin->next){
-		begin = begin->next;
-		package.elements[this.nodes].next = ++package.info.nodes;
-
-	fill1:
-		this = package.info;
-
-		strcpy(package.texts + this.text_length, begin->tok);
-		package.elements[this.nodes].text = this.text_length;
-		package.info.text_length += strlen(begin->tok) + 1;
-
-		package.elements[this.nodes].origin = begin->origin;
-
-		if(begin->down){
-			++package.info.nodes;
-			package = fill_pack_rec(begin->down, package);
-		}
-	}
-
-	package.elements[this.nodes].next = -1;
-
-	return package;
-}
-
-void fill_pack(token* begin, pack package){
-	package.info = (packinfo){0, 0};
-
-	size_t i = 256;
-	while(i--)
-		if(begin[i].tok)
-			package = fill_pack_rec(begin + i, package);
-}
-
-pack pack_tree(token* begin){
-    pack package;
-
-	package.info = count_elements(begin);
-	size_t mem = package.info.nodes * sizeof(pack_element);
-
-	package.elements = (pack_element*)malloc(package.info.text_length + mem);
-	package.texts = (char*)package.elements + mem;
-
-	fill_pack(begin, package);
-
-	return package;
 }
