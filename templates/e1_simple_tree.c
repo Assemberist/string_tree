@@ -1,12 +1,14 @@
-#include "string_tree.h"
+#include "../string_tree.h"
 #include <stdio.h>
 
 int main(){
     token* begin = init_tree();					// string_tree is created. All memory is dynamically allocated.
 
+    // set_value(key, value, tree); 
+    // Don't use NULL as value!!!
     set_value("arka", (void*)1, begin);
-    set_value("arfa", (void*)2, begin);
-    set_value("ar", (void*)3, begin);
+    set_value("arkan", (void*)2, begin);
+    set_value("arfa", (void*)3, begin);
 
 	printf("\"arka\" found -> %i\n",
 			get_value("arka", begin));

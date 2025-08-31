@@ -245,3 +245,7 @@ void* find_pack_element(char* src, pack package){
     else
         return 0;
 }
+
+void remove_pack(pack package){
+    free(package.values);
+}
