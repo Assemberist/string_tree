@@ -1,6 +1,7 @@
-#include "string_tree.h"
-#include <stddef.h>
 #include <stdio.h>
+
+#include "string_tree.h"
+#include "hide_lib.h"
 
 void remove_rec(token* begin){
     if(begin->down){
@@ -33,15 +34,6 @@ token* new_token(char* _token){
 	if(_token){
 		ret->tok = (char*)malloc(strlen(_token)+1);
 		strcpy(ret->tok, _token);
-	}
-	return ret;
-}
-
-size_t strdif(char* str1, char* str2){
-	size_t ret = 0;
-	while(*(str1++)==*(str2++)) {
-		++ret;
-		if(!*str1) return ret;
 	}
 	return ret;
 }

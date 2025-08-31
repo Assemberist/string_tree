@@ -1,10 +1,15 @@
 all: test
 
-test: string_tree.o pack.o main.c
+test: wortbook.o main.c
 	gcc *.o main.c -o test -g
 
-string_tree.o: inc/string_tree.c inc/string_tree.h
-	gcc inc/string_tree.c -c string_tree.o -g
+wortbook.o: inc/wortbook.o
+	cp $< $@
+
+inc/wortbook.o: $(wildcard inc/*.c) $(wildcard inc/*.h)
+	cd inc && make
 
 pack.o: inc/pack.c inc/pack.h
 	gcc inc/pack.c -c pack.o -g
+
+	wortbook.o

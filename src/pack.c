@@ -1,7 +1,8 @@
-#include "pack.h"
-#include "string_tree.h"
 #include <stdint.h>
 #include <string.h>
+
+#include "pack.h"
+#include "hide_lib.h"
 
 #define SHIFT_AS_NULL 0xffffffff
 
@@ -23,8 +24,10 @@ packinfo count_elements(token* begin){
 
 	size_t i = 256;
 	while(i--)
-		if(begin[i].tok)
+		if(begin[i].tok){
+            if(begin[i].origin && begin[i].down) info.nodes--;
 			count_elements_rec(begin + i, &info);
+        }
 
 	return info;
 }
@@ -75,22 +78,20 @@ void pack_rec(size_t pos, token* node, pack* package){
             (node->next ? hasNext : 0) +
             (node->origin ? hasValue : 0);
 
+        package->text_shifts[pos] = package->info.text_length;
+        strcpy(package->texts + package->info.text_length, node->tok);
+        package->info.text_length += strlen(node->tok) + 1;
+
         size_t childId;
         switch (type) {
             case hasValue:
                 package->values[pos] = node->origin;
-                package->text_shifts[pos] = package->info.text_length;
-                strcpy(package->texts + package->info.text_length, node->tok);
-                package->info.text_length += strlen(node->tok) + 1;
                 setFlags(package->flags, pos, HAVE_VALUE);
                 return;
 
             case hasValue | hasDown:
                 package->values[pos] = (void*)package->info.nodes;
-                package->text_shifts[pos] = package->info.text_length;
-                strcpy(package->texts + package->info.text_length, node->tok);
-                package->info.text_length += strlen(node->tok) + 1;
-
+                
                 childId = package->info.nodes;
                 package->values[childId] = node->origin;
                 package->text_shifts[childId] = package->info.text_length - 1;
@@ -102,35 +103,23 @@ void pack_rec(size_t pos, token* node, pack* package){
 
             case hasValue | hasNext:
                 package->values[pos] = node->origin;
-                package->text_shifts[pos] = package->info.text_length;
-                strcpy(package->texts + package->info.text_length, node->tok);
-                package->info.text_length += strlen(node->tok) + 1;
                 setFlags(package->flags, pos, HAVE_VALUE | HAVE_NEXT);
                 package->info.nodes++;
                 break;
 
             case hasDown:
                 package->values[pos] = (void*)package->info.nodes;
-                package->text_shifts[pos] = package->info.text_length;
-                strcpy(package->texts + package->info.text_length, node->tok);
-                package->info.text_length += strlen(node->tok) + 1;
                 pack_childs(node->down, package);
                 break;
 
             case hasDown | hasNext:
                 package->values[pos] = (void*)package->info.nodes;
-                package->text_shifts[pos] = package->info.text_length;
-                strcpy(package->texts + package->info.text_length, node->tok);
-                package->info.text_length += strlen(node->tok) + 1;
                 setFlags(package->flags, pos, HAVE_NEXT);
                 pack_childs(node->down, package);
                 break;
 
             case hasValue | hasDown | hasNext:
                 package->values[pos] = (void*)package->info.nodes;
-                package->text_shifts[pos] = package->info.text_length;
-                strcpy(package->texts + package->info.text_length, node->tok);
-                package->info.text_length += strlen(node->tok) + 1;
                 setFlags(package->flags, pos, HAVE_NEXT);
 
                 childId = package->info.nodes;
@@ -218,7 +207,7 @@ pack pack_tree(token* begin){
         }
 
         if(begin[i].down) {
-            package.values[i] = (void*)package.info.nodes++;
+            package.values[i] = (void*)package.info.nodes;
             pack_childs(begin[i].down, &package);
         }
 	}
@@ -226,6 +215,33 @@ pack pack_tree(token* begin){
 	return package;
 }
 
+void* find_pack_element_rec(size_t pos, char* src, pack* package){
+    // find next (match 1st letters)
+    while(package->texts[package->text_shifts[pos]] != src[0]){
+        if(haveNext(package->flags, pos)) pos++;
+        else return 0;
+    }
+
+    size_t diff = strdif(src, package->texts + package->text_shifts[pos]);
+    size_t tok_len = strlen(package->texts + package->text_shifts[pos]);
+
+    // token not fully matched.
+    if(diff < tok_len) return 0;
+
+    // there is no childs
+    if(haveValue(package->flags, pos)){
+        if(diff == strlen(src)) // and token matched
+            return package->values[pos];
+        else // src is more than last token.
+            return 0;
+    }
+
+    return find_pack_element_rec((size_t)package->values[pos], src+diff, package);
+}
+
 void* find_pack_element(char* src, pack package){
-    return 0;
+    if(package.texts + package.text_shifts[src[0]])
+        return find_pack_element_rec(src[0], src, &package);
+    else
+        return 0;
 }
