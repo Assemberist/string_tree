@@ -1,22 +1,22 @@
 ################################################################################
  
 	Description:
-It is small library that creates tree from strings. The tree is a key-value
-wordbook where key is a char consequence and value is void*.
+It is small library that creates Wordbook of c-links: #{ string => void* }.
+If there is no need to modify tree it can be compressed to pack struct.
 
 	How to use it:
 The library is presented as sources, so you free copy and compile it as a part
-of your c-project. Also there is some templates which shows how the lib can be
-used.
+of your c-project. Or you can do 'make' and the files will be compiled and
+linked to wb.o object file.
 
 	How to build templates:
-If you want to build all templates: go to templates/ foulder and execute make.
-If you interest in specific template: go to the template foulder and execute
-make.
+If you want to build all templates: go to templates/ foulder and execute 'make'.
 
 	How to cleanup templates:
 To cleanup all execute make clean.
 To cleanup specific template foulder execute make clean.
+
+NOTE! Don't use "" as key and NULL as value, it will brake internal logic.
 
 
 
@@ -49,6 +49,8 @@ remove_tree();               |  frees memory allocated for
 pack_tree();                 |  Compress string tree to pack struct. Memory
                              |  allocated dynamically, but as single piece.
 --------------------------------------------------------------------------------
+find_pack_element();         |  Search compressed wordbook for value.
+--------------------------------------------------------------------------------
 
 ################################################################################
 NOT REALYSED
@@ -59,4 +61,3 @@ import_words();
 import_tree();
 export_tree();
 update_pack();
-find_pack_element(); - Pack is useless without it, i know.
