@@ -33,6 +33,10 @@ void export_tree(char* path, pack package);
 void* search_pack(char* src, pack package);
 void* update_pack(char* src, void* element, pack package);
 
+// text not included
+// stored in pack.info.text_length
+size_t get_pack_data_length(pack package);
+
 token* unpack_tree(void* pack);
 
 #endif

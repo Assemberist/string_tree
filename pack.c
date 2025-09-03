@@ -143,9 +143,7 @@ pack pack_tree(token* begin){
 	package.info = count_elements(begin);
 
 	size_t mem =
-        package.info.nodes * sizeof(void*) +
-        package.info.nodes * sizeof(uint32_t) +
-        package.info.nodes / 4 +
+        get_pack_data_length(package) +
         package.info.text_length;
 
 	if(package.info.nodes & 3) mem++;
@@ -248,4 +246,11 @@ void* find_pack_element(char* src, pack package){
 
 void remove_pack(pack package){
     free(package.values);
+}
+
+size_t get_pack_data_length(pack package){
+    return  package.info.nodes * sizeof(void*) +
+            package.info.nodes * sizeof(uint32_t) +
+            package.info.nodes / 4 +
+            package.info.nodes & 3 ? 1 : 0;
 }

@@ -24,10 +24,7 @@ int main(){
 
     // pack size
 	size_t mem =
-        infi.nodes * sizeof(void*) +
-        infi.nodes * sizeof(uint32_t) +
-        infi.nodes / 4 +
-        (infi.nodes & 3 ? 1 : 0) +
+        get_pack_data_length(p) +
         infi.text_length;
 
     FILE* out = fopen("out.bin", "wb");
