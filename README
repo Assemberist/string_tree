@@ -19,7 +19,6 @@ To cleanup specific template foulder execute make clean.
 NOTE! Don't use "" as key and NULL as value, it will brake internal logic.
 
 
-
 ################################################################################
 STRUCTS                      |  DESCRIPTION
 ################################################################################
@@ -32,7 +31,7 @@ struct pack{};               |  String tree can be compressed and stored in to
 
 
 ################################################################################
-FUNCTIONS                    |  DESCRIPTION
+FUNCTIONS (tree)             |  DESCRIPTION
 ################################################################################
 init_tree();                 |  Creates string tree. 
                              |  Returns dynamiaclly allocated void tree.
@@ -46,11 +45,16 @@ get_value();                 |  Searh element of string_tree by key. Returns
 -----------------------------|--------------------------------------------------
 remove_tree();               |  frees memory allocated for 
 -----------------------------|--------------------------------------------------
+
+################################################################################
+FUNCTIONS (pack)             |  DESCRIPTION
+################################################################################
 pack_tree();                 |  Compress string tree to pack struct. Memory
                              |  allocated dynamically, but as single piece.
 --------------------------------------------------------------------------------
 find_pack_element();         |  Search compressed wordbook for value.
 --------------------------------------------------------------------------------
+
 
 ################################################################################
 NOT REALYSED
