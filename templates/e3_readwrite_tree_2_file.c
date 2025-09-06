@@ -13,10 +13,21 @@ int haveNext(uint8_t* ptr, size_t pos);
 int main(){
     token* tree = init_tree();
 
+    char* values[] =
+        {
+            "flex",
+            "myst",
+            "energy",
+            "gryaz",
+            "pil",
+            "air",
+            "fire",
+            "water",
+            "ground"
+        };
     
-    set_value("arka", (void*)1, tree);
-    set_value("arfa", (void*)2, tree);
-    set_value("arkan", (void*)3, tree);
+    for(int i = 0; i < sizeof(values)/sizeof(char*); i++)
+        set_value(values[i], (void*)(i+1), tree);
 
     packinfo infi = count_elements(tree);
 

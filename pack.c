@@ -25,7 +25,7 @@ packinfo count_elements(token* begin){
 	size_t i = 256;
 	while(i--)
 		if(begin[i].tok){
-            if(begin[i].origin && begin[i].down) info.nodes--;
+            info.nodes--;
 			count_elements_rec(begin + i, &info);
         }
 
@@ -104,7 +104,6 @@ void pack_rec(size_t pos, token* node, pack* package){
             case hasValue | hasNext:
                 package->values[pos] = node->origin;
                 setFlags(package->flags, pos, HAVE_VALUE | HAVE_NEXT);
-                package->info.nodes++;
                 break;
 
             case hasDown:
@@ -146,11 +145,7 @@ pack pack_tree(token* begin){
         get_pack_data_length(package) +
         package.info.text_length;
 
-	if(package.info.nodes & 3) mem++;
-
-	mem += package.info.text_length;
-
-
+        
 
 	package.values =
         (void**)malloc(mem);
@@ -163,9 +158,6 @@ pack pack_tree(token* begin){
 
 	package.texts =
         (char*)package.flags + package.info.nodes / 4;
-
-	if(package.info.nodes & 3)
-        package.texts++;
 
     memset(package.values, 0, mem);
 

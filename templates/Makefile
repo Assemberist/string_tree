@@ -3,7 +3,7 @@ SRCs=$(wildcard *.c)
 all: $(basename $(SRCs))
 
 e%: wb.o e%.c
-	gcc $+ -o $@
+	gcc $+ -o $@ -g
 
 wb.o: ../wb.o
 	cp $< $@
