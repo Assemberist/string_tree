@@ -36,17 +36,17 @@ packinfo count_elements(token* begin){
 #define HAVE_NEXT   1
 
 int haveNext(uint8_t* ptr, size_t pos){
-    ptr += pos / 4 + (pos & 3 ? 1 : 0);
+    ptr += pos / 4;
     return (*ptr >> (pos & 3) * 2) & HAVE_NEXT;
 }
 
 int haveValue(uint8_t* ptr, size_t pos){
-    ptr += pos / 4 + (pos & 3 ? 1 : 0);
+    ptr += pos / 4;
     return (*ptr >> (pos & 3) * 2) & HAVE_VALUE;
 }
 
 void setFlags(uint8_t* ptr, size_t pos, uint8_t val){
-    ptr += pos / 4 + (pos & 3 ? 1 : 0);
+    ptr += pos / 4;
     uint8_t mask = 3 << (pos & 3) * 2;
     *ptr &= ~mask;
 
@@ -251,6 +251,5 @@ void remove_pack(pack package){
 size_t get_pack_data_length(pack package){
     return  package.info.nodes * sizeof(void*) +
             package.info.nodes * sizeof(uint32_t) +
-            package.info.nodes / 4 +
-            package.info.nodes & 3 ? 1 : 0;
+            package.info.nodes / 4;
 }

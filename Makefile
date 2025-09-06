@@ -4,7 +4,7 @@ wb.o: $(SRCs:.c=.o)
 	ld -r $+ -o $@
 
 %.o: %.c %.h
-	gcc $< -c $@
+	gcc $< -c $@ -g
 
 clean:
 	rm *.o
