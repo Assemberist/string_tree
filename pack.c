@@ -6,27 +6,27 @@
 
 #define SHIFT_AS_NULL 0xffffffff
 
-void count_elements_rec(token* begin, packinfo* info){
+void count_elements_rec(token* begin, packinfo* info, void* stopPtr){
 	while(begin){
-        if(begin->origin && begin->down) info->nodes += 2;
+        if(begin->origin != stopPtr && begin->down) info->nodes += 2;
 		else info->nodes++;
 
 		if(begin->tok)
             info->text_length += strlen(begin->tok) + 1;
 
-		count_elements_rec(begin->down, info);
+		count_elements_rec(begin->down, info, stopPtr);
 		begin = begin->next;
 	}
 }
 
-packinfo count_elements(token* begin){
+packinfo count_elements(token* begin, void* stopPtr){
 	packinfo info = {256, 0};
 
 	size_t i = 256;
 	while(i--)
 		if(begin[i].tok){
             info.nodes--;
-			count_elements_rec(begin + i, &info);
+			count_elements_rec(begin + i, &info, stopPtr);
         }
 
 	return info;
@@ -54,19 +54,19 @@ void setFlags(uint8_t* ptr, size_t pos, uint8_t val){
     *ptr |= val;
 }
 
-void pack_rec(size_t pos, token* node, pack* package);
+void pack_rec(size_t pos, token* node, pack* package, void* stopPtr);
 
-void pack_childs(token* node, pack* package){
+void pack_childs(token* node, pack* package, void* stopPtr){
     size_t childs = 1;
     for(token* ptr = node; ptr = ptr->next; childs++);
 
     package->info.nodes += childs;
 
-    pack_rec(package->info.nodes - childs, node, package);
+    pack_rec(package->info.nodes - childs, node, package, stopPtr);
 }
 
-void pack_rec(size_t pos, token* node, pack* package){
-    typedef enum nodeType{
+void pack_rec(size_t pos, token* node, pack* package, void* stopPtr){
+    enum {
         hasDown = 1,
         hasNext = 2,
         hasValue = 4
@@ -76,7 +76,7 @@ void pack_rec(size_t pos, token* node, pack* package){
         uint8_t type =
             (node->down ? hasDown : 0) +
             (node->next ? hasNext : 0) +
-            (node->origin ? hasValue : 0);
+            (node->origin != stopPtr ? hasValue : 0);
 
         package->text_shifts[pos] = package->info.text_length;
         strcpy(package->texts + package->info.text_length, node->tok);
@@ -98,7 +98,7 @@ void pack_rec(size_t pos, token* node, pack* package){
                 setFlags(package->flags, childId, HAVE_VALUE);
                 package->info.nodes++;
 
-                pack_childs(node->down, package);
+                pack_childs(node->down, package, stopPtr);
                 break;
 
             case hasValue | hasNext:
@@ -108,13 +108,13 @@ void pack_rec(size_t pos, token* node, pack* package){
 
             case hasDown:
                 package->values[pos] = (void*)package->info.nodes;
-                pack_childs(node->down, package);
+                pack_childs(node->down, package, stopPtr);
                 break;
 
             case hasDown | hasNext:
                 package->values[pos] = (void*)package->info.nodes;
                 setFlags(package->flags, pos, HAVE_NEXT);
-                pack_childs(node->down, package);
+                pack_childs(node->down, package, stopPtr);
                 break;
 
             case hasValue | hasDown | hasNext:
@@ -127,7 +127,7 @@ void pack_rec(size_t pos, token* node, pack* package){
                 setFlags(package->flags, childId, HAVE_NEXT | HAVE_VALUE);
                 package->info.nodes++;
 
-                pack_childs(node->down, package);
+                pack_childs(node->down, package, stopPtr);
                 break;
         }
 
@@ -136,10 +136,10 @@ void pack_rec(size_t pos, token* node, pack* package){
     while(node = node->next);
 }
 
-pack pack_tree(token* begin){
+pack pack_tree(token* begin, void* stopPtr){
     pack package;
 
-	package.info = count_elements(begin);
+	package.info = count_elements(begin, stopPtr);
 
 	size_t mem =
         get_pack_data_length(package) +
@@ -175,7 +175,7 @@ pack pack_tree(token* begin){
         strcpy(package.texts + package.info.text_length, begin[i].tok);
         package.info.text_length += strlen(begin[i].tok) + 1;
 
-        if(begin[i].origin && begin[i].down){
+        if(begin[i].origin != stopPtr && begin[i].down){
             package.values[i] = (void*)package.info.nodes;
             setFlags(package.flags, i, HAVE_VALUE);
 
@@ -185,12 +185,12 @@ pack pack_tree(token* begin){
 
             package.info.nodes++;
 
-            pack_childs(begin[i].down, &package);
+            pack_childs(begin[i].down, &package, stopPtr);
             continue;
         }
 
 
-        if(begin[i].origin){
+        if(begin[i].origin != stopPtr){
             package.values[i] = begin[i].origin;
             setFlags(package.flags, i, HAVE_VALUE);
             continue;
@@ -198,7 +198,7 @@ pack pack_tree(token* begin){
 
         if(begin[i].down) {
             package.values[i] = (void*)package.info.nodes;
-            pack_childs(begin[i].down, &package);
+            pack_childs(begin[i].down, &package, stopPtr);
         }
 	}
 

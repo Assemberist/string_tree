@@ -10,7 +10,7 @@ int main(){
     set_value("arkan", (void*)2, tree);
     set_value("arfa", (void*)3, tree);
 
-	pack p = pack_tree(tree);
+	pack p = pack_tree_default(tree);
 	remove_tree(tree);							// frees used memory.
 
     char* tests[] = 

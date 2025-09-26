@@ -18,7 +18,8 @@ typedef struct pack{
 	char* texts;
 } pack;
 
-pack pack_tree(token* begin);
+pack pack_tree(token* begin, void* stopPtr);
+#define pack_tree_default(A) pack_tree(A, NULL)
 
 void* find_pack_element(char* src, pack package);
 
