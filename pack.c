@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <string.h>
 
 #include "pack.h"
@@ -31,9 +30,6 @@ packinfo count_elements(token* begin, void* stopPtr){
 
 	return info;
 }
-
-#define HAVE_VALUE  2
-#define HAVE_NEXT   1
 
 int haveNext(uint8_t* ptr, size_t pos){
     ptr += pos / 4;
