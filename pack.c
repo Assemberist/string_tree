@@ -205,35 +205,35 @@ pack pack_tree(token* begin, void* stopPtr){
 	return package;
 }
 
-void* find_pack_element_rec(size_t pos, char* src, pack* package){
+void* find_pack_element_rec(size_t pos, char* src, pack* package, void* stopPtr){
     // find next (match 1st letters)
     while(package->texts[package->text_shifts[pos]] != src[0]){
         if(haveNext(package->flags, pos)) pos++;
-        else return 0;
+        else return stopPtr;
     }
 
     size_t diff = strdif(src, package->texts + package->text_shifts[pos]);
     size_t tok_len = strlen(package->texts + package->text_shifts[pos]);
 
     // token not fully matched.
-    if(diff < tok_len) return 0;
+    if(diff < tok_len) return stopPtr;
 
     // there is no childs
     if(haveValue(package->flags, pos)){
         if(diff == strlen(src)) // and token matched
             return package->values[pos];
         else // src is more than last token.
-            return 0;
+            return stopPtr;
     }
 
-    return find_pack_element_rec((size_t)package->values[pos], src+diff, package);
+    return find_pack_element_rec((size_t)package->values[pos], src+diff, package, stopPtr);
 }
 
-void* find_pack_element(char* src, pack package){
+void* find_pack_element(char* src, pack package, void* stopPtr){
     if(package.texts + package.text_shifts[src[0]])
-        return find_pack_element_rec(src[0], src, &package);
+        return find_pack_element_rec(src[0], src, &package, stopPtr);
     else
-        return 0;
+        return stopPtr;
 }
 
 void remove_pack(pack package){

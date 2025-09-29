@@ -27,7 +27,7 @@ int main(){
         };
     
     for(int i = 0; i < sizeof(values)/sizeof(char*); i++)
-        set_value(values[i], (void*)(i+1), tree);
+        set_value(values[i], (void*)i, tree);
 
     packinfo infi = count_elements(tree);
 

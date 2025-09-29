@@ -30,7 +30,7 @@ int main(){
     };
 
     for(size_t i = sizeof(tests)/sizeof(char*); i--;)
-        printf("%s -> %d\n", tests[i], (int)find_pack_element(tests[i], p));
+        printf("%s -> %d\n", tests[i], find_pack_element(tests[i], p, (void*)-1));
 
     remove_pack(p);
 }
