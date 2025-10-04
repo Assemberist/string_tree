@@ -3,8 +3,6 @@
 #include "pack.h"
 #include "hide_lib.h"
 
-#define SHIFT_AS_NULL 0xffffffff
-
 void count_elements_rec(token* begin, packinfo* info, void* stopPtr){
 	while(begin){
         if(begin->origin != stopPtr && begin->down) info->nodes += 2;
