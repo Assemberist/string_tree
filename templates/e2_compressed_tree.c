@@ -10,7 +10,7 @@ int main(){
     set_value("arkan", (void*)2, tree);
     set_value("arfa", (void*)3, tree);
 
-	pack p = pack_tree_default(tree);
+	pack p = pack_tree(tree);
 	remove_tree(tree);							// frees used memory.
 
     char* tests[] = 
@@ -30,7 +30,7 @@ int main(){
     };
 
     for(size_t i = sizeof(tests)/sizeof(char*); i--;)
-        printf("%s -> %d\n", tests[i], find_pack_element(tests[i], p, (void*)-1));
+        printf("%s -> %d\n", tests[i], find_pack_element(tests[i], p));
 
     remove_pack(p);
 }

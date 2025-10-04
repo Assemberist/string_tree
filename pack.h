@@ -18,11 +18,11 @@ typedef struct pack{
 	char* texts;
 } pack;
 
-pack pack_tree(token* begin, void* stopPtr);
-#define pack_tree_default(A) pack_tree(A, NULL)
+void set_stop_value(void* stop);
+void reset_stop_value(pack p, void* stop);
 
-void* find_pack_element(char* src, pack package, void* stopPtr);
-#define find_pack_element_default(A, B) find_pack_element(A, B, NULL)
+pack pack_tree(token* begin);
+void* find_pack_element(char* src, pack package);
 void remove_pack(pack package);
 
 // ToDo below //

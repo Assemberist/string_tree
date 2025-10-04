@@ -31,7 +31,7 @@ int main(){
 
     packinfo infi = count_elements(tree);
 
-    pack p = pack_tree(tree, NULL);
+    pack p = pack_tree(tree);
 
     // pack size
 	size_t mem =

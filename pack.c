@@ -3,7 +3,18 @@
 #include "pack.h"
 #include "hide_lib.h"
 
-void count_elements_rec(token* begin, packinfo* info, void* stopPtr){
+static void* stopPtr = 0;
+
+void set_stop_value(void* stop){ stopPtr = stop; }
+void reset_stop_value(pack p, void* stop){ 
+    for(int i = 0; i < p.info.nodes; i++){
+        if(p.values[i] == stop) p.values[i] = stopPtr;
+        else if(p.values[i] == stopPtr) p.values[i] = stop;
+    }
+    stopPtr = stop;
+}
+
+void count_elements_rec(token* begin, packinfo* info){
 	while(begin){
         if(begin->origin != stopPtr && begin->down) info->nodes += 2;
 		else info->nodes++;
@@ -11,19 +22,19 @@ void count_elements_rec(token* begin, packinfo* info, void* stopPtr){
 		if(begin->tok)
             info->text_length += strlen(begin->tok) + 1;
 
-		count_elements_rec(begin->down, info, stopPtr);
+		count_elements_rec(begin->down, info);
 		begin = begin->next;
 	}
 }
 
-packinfo count_elements(token* begin, void* stopPtr){
+packinfo count_elements(token* begin){
 	packinfo info = {256, 0};
 
 	size_t i = 256;
 	while(i--)
 		if(begin[i].tok){
             info.nodes--;
-			count_elements_rec(begin + i, &info, stopPtr);
+			count_elements_rec(begin + i, &info);
         }
 
 	return info;
@@ -48,18 +59,18 @@ void setFlags(uint8_t* ptr, size_t pos, uint8_t val){
     *ptr |= val;
 }
 
-void pack_rec(size_t pos, token* node, pack* package, void* stopPtr);
+void pack_rec(size_t pos, token* node, pack* package);
 
-void pack_childs(token* node, pack* package, void* stopPtr){
+void pack_childs(token* node, pack* package){
     size_t childs = 1;
     for(token* ptr = node; ptr = ptr->next; childs++);
 
     package->info.nodes += childs;
 
-    pack_rec(package->info.nodes - childs, node, package, stopPtr);
+    pack_rec(package->info.nodes - childs, node, package);
 }
 
-void pack_rec(size_t pos, token* node, pack* package, void* stopPtr){
+void pack_rec(size_t pos, token* node, pack* package){
     enum {
         hasDown = 1,
         hasNext = 2,
@@ -92,7 +103,7 @@ void pack_rec(size_t pos, token* node, pack* package, void* stopPtr){
                 setFlags(package->flags, childId, HAVE_VALUE);
                 package->info.nodes++;
 
-                pack_childs(node->down, package, stopPtr);
+                pack_childs(node->down, package);
                 break;
 
             case hasValue | hasNext:
@@ -102,13 +113,13 @@ void pack_rec(size_t pos, token* node, pack* package, void* stopPtr){
 
             case hasDown:
                 package->values[pos] = (void*)package->info.nodes;
-                pack_childs(node->down, package, stopPtr);
+                pack_childs(node->down, package);
                 break;
 
             case hasDown | hasNext:
                 package->values[pos] = (void*)package->info.nodes;
                 setFlags(package->flags, pos, HAVE_NEXT);
-                pack_childs(node->down, package, stopPtr);
+                pack_childs(node->down, package);
                 break;
 
             case hasValue | hasDown | hasNext:
@@ -121,7 +132,7 @@ void pack_rec(size_t pos, token* node, pack* package, void* stopPtr){
                 setFlags(package->flags, childId, HAVE_NEXT | HAVE_VALUE);
                 package->info.nodes++;
 
-                pack_childs(node->down, package, stopPtr);
+                pack_childs(node->down, package);
                 break;
         }
 
@@ -130,10 +141,10 @@ void pack_rec(size_t pos, token* node, pack* package, void* stopPtr){
     while(node = node->next);
 }
 
-pack pack_tree(token* begin, void* stopPtr){
+pack pack_tree(token* begin){
     pack package;
 
-	package.info = count_elements(begin, stopPtr);
+	package.info = count_elements(begin);
 
 	size_t mem =
         get_pack_data_length(package) +
@@ -179,7 +190,7 @@ pack pack_tree(token* begin, void* stopPtr){
 
             package.info.nodes++;
 
-            pack_childs(begin[i].down, &package, stopPtr);
+            pack_childs(begin[i].down, &package);
             continue;
         }
 
@@ -192,14 +203,14 @@ pack pack_tree(token* begin, void* stopPtr){
 
         if(begin[i].down) {
             package.values[i] = (void*)package.info.nodes;
-            pack_childs(begin[i].down, &package, stopPtr);
+            pack_childs(begin[i].down, &package);
         }
 	}
 
 	return package;
 }
 
-void* find_pack_element_rec(size_t pos, char* src, pack* package, void* stopPtr){
+void* find_pack_element_rec(size_t pos, char* src, pack* package){
     while(1){
         // find next (match 1st letters)
         while(package->texts[package->text_shifts[pos]] != src[0]){
@@ -228,9 +239,9 @@ void* find_pack_element_rec(size_t pos, char* src, pack* package, void* stopPtr)
     }
 }
 
-void* find_pack_element(char* src, pack package, void* stopPtr){
+void* find_pack_element(char* src, pack package){
     if(package.texts + package.text_shifts[src[0]])
-        return find_pack_element_rec(src[0], src, &package, stopPtr);
+        return find_pack_element_rec(src[0], src, &package);
     else
         return stopPtr;
 }
