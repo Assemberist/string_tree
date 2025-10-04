@@ -50,7 +50,7 @@ token* slide_down(char* src, token* begin){
 			enter:
 
 			if(syn = strdif(begin->tok, src)){
-				if(syn < strlen(begin->tok)){
+				if(begin->tok[syn]){
 					token* ptr = new_token(begin->tok + syn);
 					ptr->origin = begin->origin;
 					begin->origin = 0;
@@ -58,8 +58,14 @@ token* slide_down(char* src, token* begin){
 					begin->tok[syn] = 0;
 					begin->down = ptr;
 				}
-				if(syn < strlen(src))
-					return begin->down ? slide_down(src + syn, begin->down) : (begin->down = new_token(src + syn));
+				if(src[syn]){
+					if(begin->down){
+						src += syn;
+						begin = begin->down;
+						goto enter;
+					}
+					else return begin->down = new_token(src + syn);
+				}
 				return begin;
 			}
 		}
@@ -86,11 +92,14 @@ void* find_down(char* src, token* begin){
 		if(*begin->tok == *src){
 			size_t diff = strdif(begin->tok, src);
 
-			if(strlen(begin->tok) == strlen(src))
-				return begin->origin;
-
-			if(diff < strlen(src))
-				return find_down(src + diff, begin->down);
+			if(!begin->tok[diff]){
+				if(!src[diff]) return begin->origin;
+				else {
+					src += diff;
+					begin = begin->down;
+					continue;
+				}
+			}
 
 			return 0;
 		}

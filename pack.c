@@ -202,27 +202,32 @@ pack pack_tree(token* begin, void* stopPtr){
 }
 
 void* find_pack_element_rec(size_t pos, char* src, pack* package, void* stopPtr){
-    // find next (match 1st letters)
-    while(package->texts[package->text_shifts[pos]] != src[0]){
-        if(haveNext(package->flags, pos)) pos++;
-        else return stopPtr;
+    while(1){
+        // find next (match 1st letters)
+        while(package->texts[package->text_shifts[pos]] != src[0]){
+            if(haveNext(package->flags, pos)) pos++;
+            else return stopPtr;
+        }
+
+        char* tokPtr = package->texts + package->text_shifts[pos];
+        size_t diff = strdif(src, tokPtr);
+
+        // token not fully matched.
+        if(tokPtr[diff]) return stopPtr;
+
+        // there is no childs
+        if(haveValue(package->flags, pos)){
+            if(!src[diff]) // and token matched
+                return package->values[pos];
+            else // src is more than last token.
+                return stopPtr;
+        }
+
+        if(package->values[pos] == stopPtr) return stopPtr;
+
+        pos = (size_t)package->values[pos];
+        src += diff;
     }
-
-    size_t diff = strdif(src, package->texts + package->text_shifts[pos]);
-    size_t tok_len = strlen(package->texts + package->text_shifts[pos]);
-
-    // token not fully matched.
-    if(diff < tok_len) return stopPtr;
-
-    // there is no childs
-    if(haveValue(package->flags, pos)){
-        if(diff == strlen(src)) // and token matched
-            return package->values[pos];
-        else // src is more than last token.
-            return stopPtr;
-    }
-
-    return find_pack_element_rec((size_t)package->values[pos], src+diff, package, stopPtr);
 }
 
 void* find_pack_element(char* src, pack package, void* stopPtr){
