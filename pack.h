@@ -25,6 +25,8 @@ pack pack_tree(token* begin);
 void* find_pack_element(char* src, pack package);
 void remove_pack(pack package);
 
+size_t get_pack_depth(pack p);
+
 // ToDo below //
 
 void import_words(char* path);

@@ -100,7 +100,7 @@ void pack_rec(size_t pos, token* node, pack* package){
                 childId = package->info.nodes;
                 package->values[childId] = node->origin;
                 package->text_shifts[childId] = package->info.text_length - 1;
-                setFlags(package->flags, childId, HAVE_VALUE);
+                setFlags(package->flags, childId, HAVE_VALUE | HAVE_NEXT);
                 package->info.nodes++;
 
                 pack_childs(node->down, package);
@@ -162,7 +162,7 @@ pack pack_tree(token* begin){
         (uint8_t*)(package.text_shifts + package.info.nodes);
 
 	package.texts =
-        (char*)package.flags + package.info.nodes / 4;
+        (char*)package.flags + package.info.nodes / 4 + (package.info.nodes & 3 ? 1 : 0);
 
     memset(package.values, 0, mem);
 
@@ -182,9 +182,9 @@ pack pack_tree(token* begin){
 
         if(begin[i].origin != stopPtr && begin[i].down){
             package.values[i] = (void*)package.info.nodes;
-            setFlags(package.flags, i, HAVE_VALUE);
+            //setFlags(package.flags, i, HAVE_VALUE);
 
-            package.values[package.info.nodes] = begin->origin;
+            package.values[package.info.nodes] = begin[i].origin;
             package.text_shifts[package.info.nodes] = full_info.text_length - 1;
             setFlags(package.flags, package.info.nodes, HAVE_VALUE | HAVE_NEXT);
 
@@ -253,5 +253,42 @@ void remove_pack(pack package){
 size_t get_pack_data_length(pack package){
     return  package.info.nodes * sizeof(void*) +
             package.info.nodes * sizeof(uint32_t) +
-            package.info.nodes / 4;
+            package.info.nodes / 4 + (package.info.nodes & 3 ? 1 : 0);
+}
+
+size_t get_pack_depth_rec(pack* p, size_t depth, size_t pos){
+    if(p->values[pos] == stopPtr) return depth;
+
+    size_t max_depth = depth;
+    size_t current_depth;
+
+    goto lbl_match_2;
+
+    do {
+        pos++;
+
+        lbl_match_2:
+            // have childs
+            if(!haveValue(p->flags, pos)){
+                current_depth = get_pack_depth_rec(p, depth + 1, (size_t)p->values[pos]);
+                if(max_depth < current_depth) max_depth = current_depth;
+            }
+
+            // don't have childs
+
+
+    } while(haveNext(p->flags, pos));
+
+    return max_depth;
+}
+
+size_t get_pack_depth(pack p){
+    size_t depth;
+    size_t max_depth = 0;
+
+    for(size_t i = 0; i < 256; i++)
+        if((depth = get_pack_depth_rec(&p, 1, i)) > max_depth)
+            max_depth = depth;
+
+    return max_depth;
 }
